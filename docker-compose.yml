@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb:/var/lib/influxdb
+    restart: always
+
+  telegraf:
+    image: telegraf
+    container_name: telegraf
+    links:
+    - influxdb
+    - mosquitto
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    links:
+    - influxdb
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana:/var/lib/grafana
+    restart: always
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - 1883:1883
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
